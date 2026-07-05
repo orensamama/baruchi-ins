@@ -77,14 +77,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "ברוכי סוכנות לביטוח | ביטוח, פנסיה ומשכנתאות" },
+      {
+        name: "description",
+        content: "סוכנות ברוכי - שירות אישי, מקצועי ומשפחתי בתחומי הביטוח, הפנסיה והמשכנתאות.",
+      },
+      { name: "author", content: "ברוכי סוכנות לביטוח" },
+      { property: "og:title", content: "ברוכי סוכנות לביטוח" },
+      {
+        property: "og:description",
+        content: "שירות אישי ומשפחתי בתחומי הביטוח, הפנסיה והמשכנתאות.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -97,6 +102,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Rubik:wght@400;500;600;700;800;900&display=swap",
       },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
     ],
   }),
   shellComponent: RootShell,

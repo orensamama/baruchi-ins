@@ -540,29 +540,29 @@ type TeamMember = (typeof TEAM_MEMBERS)[number];
 
 function TeamContactActions({ m }: { m: TeamMember }) {
   return (
-    <div className="mt-4 flex items-center gap-3">
+    <div className="mt-5 flex items-center gap-3.5">
       <a
         href={m.phoneLink}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
         title={`טלפון: ${m.phone}`}
       >
-        <Phone className="h-3.5 w-3.5" />
+        <Phone className="h-5 w-5" />
       </a>
       <a
         href={m.whatsappLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366] transition hover:bg-[#25D366] hover:text-white"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366] transition hover:bg-[#25D366] hover:text-white"
         title={`וואטסאפ: ${m.phone}`}
       >
-        <WhatsAppIcon className="h-3.5 w-3.5" />
+        <WhatsAppIcon className="h-5 w-5" />
       </a>
       <a
         href={`mailto:${m.email}`}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
         title={`מייל: ${m.email}`}
       >
-        <Mail className="h-3.5 w-3.5" />
+        <Mail className="h-5 w-5" />
       </a>
     </div>
   );
@@ -570,8 +570,8 @@ function TeamContactActions({ m }: { m: TeamMember }) {
 
 function Team() {
   return (
-    <section id="team" className="relative overflow-hidden bg-secondary py-16">
-      <div className="mx-auto max-w-5xl px-6">
+    <section id="team" className="relative overflow-hidden bg-secondary py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-semibold uppercase tracking-widest text-gold">האנשים שלנו</span>
           <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
@@ -581,30 +581,30 @@ function Team() {
             צוות מקצועי, חם ומסור — שלוקח אחריות אישית על כל לקוח.
           </p>
         </div>
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+        <div className="mt-14 grid gap-8 md:grid-cols-3">
           {TEAM_MEMBERS.map((m) => (
             <article
               key={m.name}
               id={`team-${m.slug}`}
-              className="group flex scroll-mt-24 flex-col items-center rounded-xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-md target:-translate-y-0.5 target:border-gold/60 target:shadow-md target:ring-2 target:ring-gold/40 sm:w-[340px]"
+              className="group flex scroll-mt-24 flex-col items-center rounded-2xl border border-border bg-card px-8 py-10 shadow-sm transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-xl target:-translate-y-1 target:border-gold/60 target:shadow-xl target:ring-2 target:ring-gold/40"
             >
               <div className="relative shrink-0">
-                <div className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-gold/50 to-gold/0 opacity-0 transition group-hover:opacity-100" />
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 to-gold/0 opacity-0 transition group-hover:opacity-100" />
                 <img
                   src={m.img}
                   alt={m.name}
-                  className="relative h-14 w-14 rounded-full object-cover object-top ring-[1.5px] ring-border"
+                  className="relative h-24 w-24 rounded-full object-cover object-top ring-2 ring-border"
                 />
               </div>
-              <div className="mt-3 text-center">
-                <h3 className="font-display text-sm font-bold leading-tight text-primary">
+              <div className="mt-5 text-center">
+                <h3 className="font-display text-xl font-bold leading-tight text-primary">
                   {m.name}
                 </h3>
-                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-gold">{m.title}</p>
-                <p className="mt-2 text-xs leading-[1.65] text-muted-foreground">{m.desc}</p>
+                <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-gold">{m.title}</p>
+                <p className="mt-4 text-base leading-relaxed text-muted-foreground">{m.desc}</p>
               </div>
               <TeamContactActions m={m} />
-              <div className="mt-2 text-[11px] font-medium text-muted-foreground">
+              <div className="mt-3 text-sm font-medium text-muted-foreground">
                 {m.phone}
               </div>
             </article>
