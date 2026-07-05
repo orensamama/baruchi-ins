@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import logoImage from "@/assets/baruchi-logo.jpg";
 import asherImg from "@/assets/asher.png";
 import yonatanImg from "@/assets/yonatan.png";
 import orenImg from "@/assets/oren.png";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   ShieldCheck,
   Home,
@@ -328,7 +335,7 @@ function CTA() {
                 className="flex items-center gap-3 rounded-xl bg-[#25D366] px-5 py-3.5 font-semibold text-white transition hover:brightness-105"
               >
                 <WhatsAppIcon className="h-5 w-5" />
-                וואטסאפ אשר ברוכי: 054-428-9164
+                אשר ברוכי: 054-428-9164
               </a>
               <a
                 href="tel:039206652"
@@ -406,6 +413,7 @@ function Mission() {
 }
 
 function Services() {
+  const [activeMember, setActiveMember] = useState<TeamMember | null>(null);
   const services = [
     { icon: HeartPulse, title: "סיכונים", desc: "ביטוחי חיים, בריאות, ביטוח משכנתא, אובדן כושר עבודה ונכות.", items: ["ביטוח חיים", "ביטוח בריאות", "ביטוח משכנתא", "אובדן כושר עבודה"], team: "asher" },
     { icon: PiggyBank, title: "פנסיוני", desc: "בניית עתיד פנסיוני יציב — קרנות פנסיה, ביטוחי מנהלים וקופות גמל.", items: ["קרנות פנסיה", "ביטוחי מנהלים", "קופות גמל", "תכנון פרישה"], team: "asher" },
@@ -442,54 +450,125 @@ function Services() {
                   </li>
                 ))}
               </ul>
-              <a href={`#team-${s.team}`} className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition hover:text-gold">
+              <button
+                type="button"
+                onClick={() => setActiveMember(TEAM_MEMBERS.find((m) => m.slug === s.team) ?? null)}
+                className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition hover:text-gold"
+              >
                 לפרטים נוספים
                 <ArrowLeft className="h-4 w-4" />
-              </a>
+              </button>
             </article>
           ))}
         </div>
       </div>
+      <Dialog open={!!activeMember} onOpenChange={(open) => !open && setActiveMember(null)}>
+        <DialogContent className="max-w-sm">
+          {activeMember && (
+            <>
+              <DialogHeader>
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <img
+                    src={activeMember.img}
+                    alt={activeMember.name}
+                    className="h-16 w-16 rounded-full object-cover object-top ring-[1.5px] ring-border"
+                  />
+                  <div>
+                    <DialogTitle className="font-display text-lg font-bold text-primary">
+                      {activeMember.name}
+                    </DialogTitle>
+                    <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-gold">
+                      {activeMember.title}
+                    </p>
+                  </div>
+                </div>
+              </DialogHeader>
+              <p className="text-center text-sm leading-[1.65] text-muted-foreground">
+                {activeMember.desc}
+              </p>
+              <div className="flex flex-col items-center gap-1">
+                <TeamContactActions m={activeMember} />
+                <div className="mt-1 text-[11px] font-medium text-muted-foreground">
+                  {activeMember.phone}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
 
+const TEAM_MEMBERS = [
+  {
+    slug: "asher",
+    name: "אשר ברוכי (אושי)",
+    title: "מייסד וסוכן ביטוח בכיר",
+    img: asherImg,
+    desc: "סוכן ביטוח למעלה מ-35 שנה. ותיק ומנוסה, נלחם בנחישות על כל מבוטח ומבוטח. חברות הביטוח יודעות שאושי לא מוותר על שום זכות המגיעה ללקוח.",
+    phone: "054-428-9164",
+    phoneLink: "tel:0544289164",
+    whatsappLink: "https://wa.me/972544289164",
+    email: "asherb@shaham-orlan.co.il",
+  },
+  {
+    slug: "yonatan",
+    name: "יהונתן ברוכי",
+    title: "מומחה לביטוח אלמנטרי ופיננסים",
+    img: yonatanImg,
+    desc: "סוכן ביטוח מומחה עם ניסיון בליווי מאות משפחות ותיקי ביטוח מורכבים.",
+    phone: "054-391-3343",
+    phoneLink: "tel:0543913343",
+    whatsappLink: "https://wa.me/972543913343",
+    email: "yehonatanb@shaham.co.il",
+  },
+  {
+    slug: "oren",
+    name: "אורן טל סממה",
+    title: "יועץ משכנתאות אסטרטגי",
+    img: orenImg,
+    desc: "מומחה בבניית תמהילי משכנתא חכמים, מיחזור ואיחוד הלוואות, המלווה את הלקוח יד ביד מול המערכת הבנקאית.",
+    phone: "054-200-8230",
+    phoneLink: "tel:0542008230",
+    whatsappLink: "https://wa.me/972542008230",
+    email: "officeasher@shaham-orlan.co.il",
+  },
+] as const;
+
+type TeamMember = (typeof TEAM_MEMBERS)[number];
+
+function TeamContactActions({ m }: { m: TeamMember }) {
+  return (
+    <div className="mt-4 flex items-center gap-3">
+      <a
+        href={m.phoneLink}
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
+        title={`טלפון: ${m.phone}`}
+      >
+        <Phone className="h-3.5 w-3.5" />
+      </a>
+      <a
+        href={m.whatsappLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366] transition hover:bg-[#25D366] hover:text-white"
+        title={`וואטסאפ: ${m.phone}`}
+      >
+        <WhatsAppIcon className="h-3.5 w-3.5" />
+      </a>
+      <a
+        href={`mailto:${m.email}`}
+        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
+        title={`מייל: ${m.email}`}
+      >
+        <Mail className="h-3.5 w-3.5" />
+      </a>
+    </div>
+  );
+}
+
 function Team() {
-  const members = [
-    {
-      slug: "asher",
-      name: "אשר ברוכי (אושי)",
-      title: "מייסד וסוכן ביטוח בכיר",
-      img: asherImg,
-      desc: "סוכן ביטוח למעלה מ-35 שנה. ותיק ומנוסה, נלחם בנחישות על כל מבוטח ומבוטח. חברות הביטוח יודעות שאושי לא מוותר על שום זכות המגיעה ללקוח.",
-      phone: "054-428-9164",
-      phoneLink: "tel:0544289164",
-      whatsappLink: "https://wa.me/972544289164",
-      email: "asherb@shaham-orlan.co.il",
-    },
-    {
-      slug: "yonatan",
-      name: "יהונתן ברוכי",
-      title: "מומחה לביטוח אלמנטרי ופיננסים",
-      img: yonatanImg,
-      desc: "סוכן ביטוח מומחה עם ניסיון בליווי מאות משפחות ותיקי ביטוח מורכבים.",
-      phone: "054-391-3343",
-      phoneLink: "tel:0543913343",
-      whatsappLink: "https://wa.me/972543913343",
-      email: "yehonatanb@shaham.co.il",
-    },
-    {
-      slug: "oren",
-      name: "אורן טל סממה",
-      title: "יועץ משכנתאות אסטרטגי",
-      img: orenImg,
-      desc: "מומחה בבניית תמהילי משכנתא חכמים, מיחזור ואיחוד הלוואות, המלווה את הלקוח יד ביד מול המערכת הבנקאית.",
-      phone: "054-200-8230",
-      phoneLink: "tel:0542008230",
-      whatsappLink: "https://wa.me/972542008230",
-      email: "officeasher@shaham-orlan.co.il",
-    },
-  ];
   return (
     <section id="team" className="relative overflow-hidden bg-secondary py-16">
       <div className="mx-auto max-w-5xl px-6">
@@ -503,7 +582,7 @@ function Team() {
           </p>
         </div>
         <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
-          {members.map((m) => (
+          {TEAM_MEMBERS.map((m) => (
             <article
               key={m.name}
               id={`team-${m.slug}`}
@@ -524,31 +603,7 @@ function Team() {
                 <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-gold">{m.title}</p>
                 <p className="mt-2 text-xs leading-[1.65] text-muted-foreground">{m.desc}</p>
               </div>
-              <div className="mt-4 flex items-center gap-3">
-                <a
-                  href={m.phoneLink}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
-                  title={`טלפון: ${m.phone}`}
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                </a>
-                <a
-                  href={m.whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366] transition hover:bg-[#25D366] hover:text-white"
-                  title={`וואטסאפ: ${m.phone}`}
-                >
-                  <WhatsAppIcon className="h-3.5 w-3.5" />
-                </a>
-                <a
-                  href={`mailto:${m.email}`}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition hover:bg-primary hover:text-primary-foreground"
-                  title={`מייל: ${m.email}`}
-                >
-                  <Mail className="h-3.5 w-3.5" />
-                </a>
-              </div>
+              <TeamContactActions m={m} />
               <div className="mt-2 text-[11px] font-medium text-muted-foreground">
                 {m.phone}
               </div>
