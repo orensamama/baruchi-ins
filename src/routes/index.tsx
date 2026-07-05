@@ -322,13 +322,13 @@ function CTA() {
             </div>
             <div className="space-y-3">
               <a
-                href="https://wa.me/972549111656"
+                href="https://wa.me/972544289164"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 rounded-xl bg-[#25D366] px-5 py-3.5 font-semibold text-white transition hover:brightness-105"
               >
                 <WhatsAppIcon className="h-5 w-5" />
-                וואטסאפ משרד: 054-911-1656
+                וואטסאפ אשר ברוכי: 054-428-9164
               </a>
               <a
                 href="tel:039206652"
@@ -407,11 +407,11 @@ function Mission() {
 
 function Services() {
   const services = [
-    { icon: HeartPulse, title: "סיכונים", desc: "ביטוחי חיים, בריאות, ביטוח משכנתא, אובדן כושר עבודה ונכות.", items: ["ביטוח חיים", "ביטוח בריאות", "ביטוח משכנתא", "אובדן כושר עבודה"] },
-    { icon: PiggyBank, title: "פנסיוני", desc: "בניית עתיד פנסיוני יציב — קרנות פנסיה, ביטוחי מנהלים וקופות גמל.", items: ["קרנות פנסיה", "ביטוחי מנהלים", "קופות גמל", "תכנון פרישה"] },
-    { icon: LineChart, title: "פיננסים", desc: "פתרונות חיסכון והשקעה לטווח קצר וארוך, בהתאמה אישית מלאה.", items: ["גמל להשקעה", "קרנות השתלמות", "השקעות", "ניהול נזילות"] },
-    { icon: Car, title: "אלמנטרי", desc: "ביטוחי רכב, דירה, מבנה ותכולה — הגנה מלאה על כל מה שיקר לכם.", items: ["ביטוח רכב", "ביטוח דירה", "ביטוח מבנה", "ביטוח עסק"] },
-    { icon: Landmark, title: "משכנתאות", desc: "ייעוץ משכנתאות אסטרטגי — מרכישת דירה ועד מיחזור ואיחוד הלוואות.", items: ["רכישת דירה", "מיחזור משכנתא", "משכנתא הפוכה", "איחוד הלוואות"] },
+    { icon: HeartPulse, title: "סיכונים", desc: "ביטוחי חיים, בריאות, ביטוח משכנתא, אובדן כושר עבודה ונכות.", items: ["ביטוח חיים", "ביטוח בריאות", "ביטוח משכנתא", "אובדן כושר עבודה"], team: "asher" },
+    { icon: PiggyBank, title: "פנסיוני", desc: "בניית עתיד פנסיוני יציב — קרנות פנסיה, ביטוחי מנהלים וקופות גמל.", items: ["קרנות פנסיה", "ביטוחי מנהלים", "קופות גמל", "תכנון פרישה"], team: "asher" },
+    { icon: LineChart, title: "פיננסים", desc: "פתרונות חיסכון והשקעה לטווח קצר וארוך, בהתאמה אישית מלאה.", items: ["גמל להשקעה", "קרנות השתלמות", "השקעות", "ניהול נזילות"], team: "yonatan" },
+    { icon: Car, title: "אלמנטרי", desc: "ביטוחי רכב, דירה, מבנה ותכולה — הגנה מלאה על כל מה שיקר לכם.", items: ["ביטוח רכב", "ביטוח דירה", "ביטוח מבנה", "ביטוח עסק"], team: "yonatan" },
+    { icon: Landmark, title: "משכנתאות", desc: "ייעוץ משכנתאות אסטרטגי — מרכישת דירה ועד מיחזור ואיחוד הלוואות.", items: ["רכישת דירה", "מיחזור משכנתא", "משכנתא הפוכה", "איחוד הלוואות"], team: "oren" },
   ];
   return (
     <section id="services" className="bg-secondary py-24">
@@ -442,7 +442,7 @@ function Services() {
                   </li>
                 ))}
               </ul>
-              <a href="#contact" className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition hover:text-gold">
+              <a href={`#team-${s.team}`} className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition hover:text-gold">
                 לפרטים נוספים
                 <ArrowLeft className="h-4 w-4" />
               </a>
@@ -457,6 +457,7 @@ function Services() {
 function Team() {
   const members = [
     {
+      slug: "asher",
       name: "אשר ברוכי (אושי)",
       title: "מייסד וסוכן ביטוח בכיר",
       img: asherImg,
@@ -467,6 +468,7 @@ function Team() {
       email: "asherb@shaham-orlan.co.il",
     },
     {
+      slug: "yonatan",
       name: "יהונתן ברוכי",
       title: "מומחה לביטוח אלמנטרי ופיננסים",
       img: yonatanImg,
@@ -477,6 +479,7 @@ function Team() {
       email: "yehonatanb@shaham.co.il",
     },
     {
+      slug: "oren",
       name: "אורן טל סממה",
       title: "יועץ משכנתאות אסטרטגי",
       img: orenImg,
@@ -503,7 +506,8 @@ function Team() {
           {members.map((m) => (
             <article
               key={m.name}
-              className="group flex flex-col items-center rounded-xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-md sm:w-[340px]"
+              id={`team-${m.slug}`}
+              className="group flex scroll-mt-24 flex-col items-center rounded-xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-gold/30 hover:shadow-md target:-translate-y-0.5 target:border-gold/60 target:shadow-md target:ring-2 target:ring-gold/40 sm:w-[340px]"
             >
               <div className="relative shrink-0">
                 <div className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-gold/50 to-gold/0 opacity-0 transition group-hover:opacity-100" />
