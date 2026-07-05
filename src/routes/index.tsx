@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import logoImage from "@/assets/baruchi-logo.jpg";
-import asherAsset from "@/assets/asher.png.asset.json";
-import yonatanAsset from "@/assets/yonatan.png.asset.json";
-import orenAsset from "@/assets/oren.png.asset.json";
+import asherImg from "@/assets/asher.png";
+import yonatanImg from "@/assets/yonatan.png";
+import orenImg from "@/assets/oren.png";
 import {
   ShieldCheck,
   Home,
@@ -457,9 +457,9 @@ function Services() {
 function Team() {
   const members = [
     {
-      name: "אשר ברוכי",
+      name: "אשר ברוכי (אושי)",
       title: "מייסד וסוכן ביטוח בכיר",
-      img: asherAsset.url,
+      img: asherImg,
       desc: "סוכן ביטוח למעלה מ-35 שנה. ותיק ומנוסה, נלחם בנחישות על כל מבוטח ומבוטח. חברות הביטוח יודעות שאושי לא מוותר על שום זכות המגיעה ללקוח.",
       phone: "054-428-9164",
       phoneLink: "tel:0544289164",
@@ -469,7 +469,7 @@ function Team() {
     {
       name: "יהונתן ברוכי",
       title: "מומחה לביטוח אלמנטרי ופיננסים",
-      img: yonatanAsset.url,
+      img: yonatanImg,
       desc: "סוכן ביטוח מומחה עם ניסיון בליווי מאות משפחות ותיקי ביטוח מורכבים.",
       phone: "054-391-3343",
       phoneLink: "tel:0543913343",
@@ -479,7 +479,7 @@ function Team() {
     {
       name: "אורן טל סממה",
       title: "יועץ משכנתאות אסטרטגי",
-      img: orenAsset.url,
+      img: orenImg,
       desc: "מומחה בבניית תמהילי משכנתא חכמים, מיחזור ואיחוד הלוואות, המלווה את הלקוח יד ביד מול המערכת הבנקאית.",
       phone: "054-200-8230",
       phoneLink: "tel:0542008230",
