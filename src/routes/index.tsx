@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { SiteHeader, ServicePortalFab } from "@/components/site-header";
+import { SiteHeader, FloatingActions } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useSubmitForm, FormStatusMessage, SubmitButton } from "@/components/form-helpers";
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground" dir="rtl">
+    <div className="min-h-screen bg-background pb-20 font-sans text-foreground md:pb-0" dir="rtl">
       <SiteHeader />
       <main>
         <Hero />
@@ -66,7 +66,7 @@ function Index() {
         <ContactSection />
       </main>
       <SiteFooter />
-      <ServicePortalFab />
+      <FloatingActions />
     </div>
   );
 }

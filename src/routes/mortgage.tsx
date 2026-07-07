@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, FileSpreadsheet, FileText, UploadCloud } from "lucide-react";
-import { SiteHeader, ServicePortalFab } from "@/components/site-header";
+import { SiteHeader, FloatingActions } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useSubmitForm, FormStatusMessage, SubmitButton } from "@/components/form-helpers";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ function MortgagePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground" dir="rtl">
+    <div className="min-h-screen bg-background pb-20 font-sans text-foreground md:pb-0" dir="rtl">
       <SiteHeader />
       <main>
         <section className="relative overflow-hidden bg-[oklch(0.18_0.04_258)] py-20 text-primary-foreground md:py-28">
@@ -151,7 +151,7 @@ function MortgagePage() {
         </section>
       </main>
       <SiteFooter />
-      <ServicePortalFab />
+      <FloatingActions />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Phone, Users } from "lucide-react";
+import { Landmark, Phone, Users } from "lucide-react";
 import logoImage from "@/assets/baruchi-logo.jpg";
 
 export function SiteHeader() {
@@ -51,14 +51,50 @@ export function SiteHeader() {
   );
 }
 
-export function ServicePortalFab() {
+/** Desktop-only floating shortcut to the service portal. Hidden on mobile in favor of MobileActionBar. */
+function DesktopServicePortalFab() {
   return (
     <a
       href="/#client-portal"
-      className="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-2xl ring-1 ring-gold/40 transition hover:-translate-y-0.5 hover:bg-primary/90"
+      className="fixed bottom-6 left-6 z-50 hidden items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-2xl ring-1 ring-gold/40 transition hover:-translate-y-0.5 hover:bg-primary/90 md:flex"
     >
       <Users className="h-4 w-4 text-gold" />
       אזור מבוטחים
     </a>
+  );
+}
+
+/** Mobile-only fixed bottom action bar — scrolling is long on mobile, so keep the two key actions always reachable. */
+function MobileActionBar() {
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-50 flex gap-2.5 border-t border-white/10 bg-primary/95 px-3 pt-3 shadow-[0_-8px_30px_rgba(0,0,0,0.25)] backdrop-blur-lg md:hidden"
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+    >
+      <a
+        href="/#client-portal"
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-md transition active:scale-[0.97] active:bg-white/15"
+      >
+        <Users className="h-4 w-4 text-gold" />
+        אזור מבוטחים
+      </a>
+      <a
+        href="/mortgage"
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gold px-4 py-3.5 text-sm font-semibold text-gold-foreground shadow-md transition active:scale-[0.97] active:brightness-95"
+      >
+        <Landmark className="h-4 w-4" />
+        מיחזור משכנתא
+      </a>
+    </nav>
+  );
+}
+
+/** Renders the desktop FAB and the mobile bottom action bar; each hides itself on the other breakpoint. */
+export function FloatingActions() {
+  return (
+    <>
+      <DesktopServicePortalFab />
+      <MobileActionBar />
+    </>
   );
 }
