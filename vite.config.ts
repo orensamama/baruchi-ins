@@ -12,10 +12,17 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  // This project deploys to Vercel — pin the Nitro preset explicitly instead of
-  // relying on auto-detection (which otherwise falls back to "cloudflare-module"
-  // and produces a build that crashes at runtime on Vercel).
+  // This project deploys to Vercel. Nitro's own zero-config auto-detection
+  // already picks the "vercel" preset there, but we pin it explicitly to
+  // remove any doubt, plus set the function runtime (`vercel.functions.runtime`
+  // isn't part of this wrapper's narrow public type, hence the cast — Nitro
+  // itself accepts it fine). Without this, Nitro derives the runtime from
+  // whichever Node.js version happens to be on the machine running the build,
+  // which is fragile — pin to a stable, definitely-supported Vercel LTS runtime.
   nitro: {
     preset: "vercel",
-  },
+    vercel: {
+      functions: { runtime: "nodejs22.x" },
+    },
+  } as { preset: string },
 });

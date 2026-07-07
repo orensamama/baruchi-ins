@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
 const DESTINATION_EMAIL = "main.baruchi@gmail.com";
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "אתר ברוכי <onboarding@resend.dev>";
 
 const FORM_TITLES: Record<string, string> = {
   callback: "פנייה חדשה מהאתר - בקשה לחזרה",
@@ -69,11 +68,14 @@ export const submitContactForm = createServerFn({ method: "POST" })
       }
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = typeof process !== "undefined" ? process.env.RESEND_API_KEY : undefined;
     if (!apiKey) {
       console.error("RESEND_API_KEY is not configured — form submission was not emailed.");
       throw new Error("שירות שליחת הטפסים אינו מוגדר כרגע. אנא צרו קשר טלפוני.");
     }
+    const fromEmail =
+      (typeof process !== "undefined" ? process.env.RESEND_FROM_EMAIL : undefined) ||
+      "אתר ברוכי <onboarding@resend.dev>";
 
     const { Resend } = await import("resend");
     const resend = new Resend(apiKey);
@@ -88,7 +90,7 @@ export const submitContactForm = createServerFn({ method: "POST" })
     `;
 
     const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: fromEmail,
       to: DESTINATION_EMAIL,
       subject: FORM_TITLES[formType] ?? "פנייה חדשה מהאתר",
       html,
