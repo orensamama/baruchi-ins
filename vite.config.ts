@@ -12,4 +12,10 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // This project deploys to Vercel — pin the Nitro preset explicitly instead of
+  // relying on auto-detection (which otherwise falls back to "cloudflare-module"
+  // and produces a build that crashes at runtime on Vercel).
+  nitro: {
+    preset: "vercel",
+  },
 });
