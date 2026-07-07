@@ -1,31 +1,18 @@
-import { useState, type FormEvent, type ReactNode } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { submitContactForm } from "@/lib/submit-form";
-import logoImage from "@/assets/baruchi-logo.jpg";
+import { useState, type FormEvent } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import asherImg from "@/assets/asher.png";
 import yonatanImg from "@/assets/yonatan.png";
 import orenImg from "@/assets/oren.png";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SiteHeader, ServicePortalFab } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
+import { useSubmitForm, FormStatusMessage, SubmitButton } from "@/components/form-helpers";
 import {
   ShieldCheck,
-  Home,
-  TrendingUp,
   Heart,
   Users,
   Award,
@@ -40,29 +27,11 @@ import {
   Compass,
   Wallet,
   Swords,
-  Sparkles,
   ArrowLeft,
   UploadCloud,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
   IdCard,
-  FileSpreadsheet,
-  FileText,
+  MessageSquareText,
 } from "lucide-react";
-
-function WhatsAppIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-9.502c3.246 0 5.892 2.647 5.892 5.892 0 3.247-2.646 5.893-5.892 5.893-1.03 0-2.005-.264-2.86-.733l-2.322.76.759-2.27a5.858 5.858 0 01-.799-2.935c0-3.245 2.646-5.892 5.892-5.892m0-1.106a7 7 0 00-7 7c0 1.36.39 2.63 1.065 3.71l-1.39 4.15 4.243-1.39a6.982 6.982 0 003.082.712 7 7 0 007-7 7 7 0 00-7-7z" />
-    </svg>
-  );
-}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,7 +55,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="min-h-screen bg-background font-sans text-foreground" dir="rtl">
-      <Header />
+      <SiteHeader />
       <main>
         <Hero />
         <Team />
@@ -94,62 +63,22 @@ function Index() {
         <Services />
         <WhyUs />
         <ClientPortal />
-        <MortgageDocs />
-        <LeadForm />
-        <CTA />
+        <ContactSection />
       </main>
-      <Footer />
+      <SiteFooter />
+      <ServicePortalFab />
     </div>
-  );
-}
-
-function Header() {
-  return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 lg:px-10">
-        <a href="#" className="flex items-center gap-3.5">
-          <img
-            src={logoImage}
-            alt="ברוכי סוכנות לביטוח"
-            width={48}
-            height={48}
-            className="h-12 w-12 rounded-lg object-cover shadow-sm ring-1 ring-border"
-          />
-          <span className="flex flex-col leading-tight">
-            <span className="font-display text-base font-bold tracking-tight text-primary">
-              ברוכי
-            </span>
-            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              סוכנות לביטוח
-            </span>
-          </span>
-        </a>
-        <nav className="hidden items-center gap-10 text-sm font-medium text-foreground/75 lg:flex">
-          <a href="#expertise" className="transition hover:text-primary">תחומי התמחות</a>
-          <a href="#why-us" className="transition hover:text-primary">למה אנחנו</a>
-          <a href="#client-portal" className="transition hover:text-primary">אזור מבוטחים</a>
-          <a href="#contact" className="transition hover:text-primary">צור קשר</a>
-        </nav>
-        <a
-          href="#contact"
-          className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-        >
-          <Phone className="h-4 w-4" />
-          <span className="hidden sm:inline">לייעוץ ללא עלות</span>
-        </a>
-      </div>
-    </header>
   );
 }
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden bg-[oklch(0.18_0.04_258)] text-primary-foreground">
+    <section className="relative overflow-hidden bg-[oklch(0.16_0.045_258)] text-primary-foreground">
       {/* atmospheric backdrop */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full bg-[oklch(0.78_0.09_82)] opacity-[0.10] blur-[120px]" />
-        <div className="absolute bottom-[-20%] left-[-15%] h-[600px] w-[600px] rounded-full bg-[oklch(0.35_0.08_258)] opacity-60 blur-[140px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_30%,rgba(0,0,0,0.4)_100%)]" />
+        <div className="absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full bg-[oklch(0.78_0.09_82)] opacity-[0.14] blur-[120px]" />
+        <div className="absolute bottom-[-20%] left-[-15%] h-[600px] w-[600px] rounded-full bg-[oklch(0.35_0.08_258)] opacity-70 blur-[140px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_30%,rgba(0,0,0,0.45)_100%)]" />
       </div>
 
       <div className="relative mx-auto max-w-4xl px-6 py-24 text-center sm:px-10 md:py-28 lg:py-32">
@@ -167,8 +96,8 @@ function Hero() {
           </h1>
 
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-primary-foreground/80 sm:text-lg md:text-xl md:leading-[1.75]">
-            נלחמים ועומדים על שלכם מול חברות הביטוח, חוסכים לכם כספים מיותרים
-            ומונעים כפילויות ביטוח וכפלי תשלום — כדי שתקבלו את כל מה שמגיע לכם, בלי להתפשר.
+            נלחמים ועומדים על שלכם מול חברות הביטוח, חוסכים לכם כספים מיותרים ומונעים כפילויות ביטוח
+            וכפלי תשלום — כדי שתקבלו את כל מה שמגיע לכם, בלי להתפשר.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2 sm:gap-4">
@@ -193,77 +122,13 @@ function Hero() {
               { k: "100%", v: "יחס אישי" },
             ].map((s) => (
               <div key={s.v}>
-                <dt className="font-display text-2xl font-bold text-gold sm:text-3xl">
-                  {s.k}
-                </dt>
+                <dt className="font-display text-2xl font-bold text-gold sm:text-3xl">{s.k}</dt>
                 <dd className="mt-1.5 text-xs font-medium text-primary-foreground/65 sm:text-sm">
                   {s.v}
                 </dd>
               </div>
             ))}
           </dl>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Expertise() {
-  const items = [
-    {
-      icon: ShieldCheck,
-      title: "ביטוח ופנסיה",
-      desc: "פתרונות ביטוח אישיים ועסקיים, תכנון פנסיוני מותאם וניהול תיק חיסכון ארוך טווח לעתיד בטוח.",
-      points: ["ביטוחי חיים ובריאות", "תכנון פנסיוני", "ביטוחי רכוש ועסק"],
-    },
-    {
-      icon: Home,
-      title: "משכנתאות",
-      desc: "ייעוץ משכנתאות אובייקטיבי לבחירת המסלול הטוב ביותר — חיסכון של עשרות אלפי שקלים על פני חיי ההלוואה.",
-      points: ["מחזור משכנתא", "ליווי רוכשי דירה ראשונה", "מסלולים מותאמים אישית"],
-    },
-    {
-      icon: TrendingUp,
-      title: "ניהול סיכונים",
-      desc: "מיפוי מקצועי של הסיכונים הפיננסיים והאישיים שלכם, ובניית מענה חכם שמגן עליכם ועל המשפחה.",
-      points: ["סקר ביטוחי מקיף", "אופטימיזציה של פוליסות", "הגנה על נכסים"],
-    },
-  ];
-  return (
-    <section id="expertise" className="bg-background py-24">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
-            תחומי התמחות
-          </span>
-          <h2 className="mt-3 font-display text-4xl font-bold text-primary md:text-5xl">
-            פתרון מקצועי לכל צורך פיננסי
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            צוות ברוכי מלווה אתכם בכל החלטה משמעותית — מהביטוח הראשון ועד לתכנון העתיד.
-          </p>
-        </div>
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {items.map((it) => (
-            <article
-              key={it.title}
-              className="group relative rounded-2xl border border-border bg-card p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition group-hover:bg-gold group-hover:text-gold-foreground">
-                <it.icon className="h-7 w-7" />
-              </div>
-              <h3 className="font-display text-2xl font-bold text-primary">{it.title}</h3>
-              <p className="mt-3 leading-relaxed text-muted-foreground">{it.desc}</p>
-              <ul className="mt-6 space-y-2 border-t border-border pt-5 text-sm">
-                {it.points.map((p) => (
-                  <li key={p} className="flex items-center gap-2 text-foreground/80">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
         </div>
       </div>
     </section>
@@ -308,22 +173,20 @@ function WhyUs() {
               <span className="block text-gold">כמו למשפחה</span>
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              שלושה דורות של מומחיות, אלפי משפחות מלוות, ומחויבות אחת בלתי מתפשרת —
-              לעמוד לצידכם בכל רגע משמעותי בחיים.
+              שלושה דורות של מומחיות, אלפי משפחות מלוות, ומחויבות אחת בלתי מתפשרת — לעמוד לצידכם בכל
+              רגע משמעותי בחיים.
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             {reasons.map((r) => (
               <div
                 key={r.title}
-                className="rounded-2xl border border-border bg-card p-7 shadow-sm"
+                className="rounded-2xl border border-border bg-card p-7 shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gold/15 text-gold">
                   <r.icon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-5 font-display text-xl font-bold text-primary">
-                  {r.title}
-                </h3>
+                <h3 className="mt-5 font-display text-xl font-bold text-primary">{r.title}</h3>
                 <p className="mt-2 leading-relaxed text-muted-foreground">{r.desc}</p>
               </div>
             ))}
@@ -334,87 +197,7 @@ function WhyUs() {
   );
 }
 
-type FormStatus = "idle" | "submitting" | "success" | "error";
-
-function useSubmitForm(formType: string) {
-  const submit = useServerFn(submitContactForm);
-  const [status, setStatus] = useState<FormStatus>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  async function submitFields(fields: Record<string, string>, file?: File | null) {
-    setStatus("submitting");
-    setErrorMessage("");
-    try {
-      const fd = new FormData();
-      fd.append("formType", formType);
-      for (const [key, value] of Object.entries(fields)) {
-        if (value) fd.append(key, value);
-      }
-      if (file) fd.append("file", file);
-      await submit({ data: fd });
-      setStatus("success");
-      return true;
-    } catch (err) {
-      setStatus("error");
-      setErrorMessage(err instanceof Error ? err.message : "משהו השתבש. נסו שוב או צרו קשר טלפוני.");
-      return false;
-    }
-  }
-
-  function fail(message: string) {
-    setStatus("error");
-    setErrorMessage(message);
-  }
-
-  return { status, errorMessage, submitFields, fail };
-}
-
-function FormStatusMessage({
-  status,
-  errorMessage,
-  successMessage,
-}: {
-  status: FormStatus;
-  errorMessage: string;
-  successMessage: string;
-}) {
-  if (status === "success") {
-    return (
-      <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-        <CheckCircle2 className="h-5 w-5 shrink-0" />
-        {successMessage}
-      </div>
-    );
-  }
-  if (status === "error") {
-    return (
-      <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-        <AlertCircle className="h-5 w-5 shrink-0" />
-        {errorMessage}
-      </div>
-    );
-  }
-  return null;
-}
-
-function SubmitButton({ status, children, variant = "primary" }: { status: FormStatus; children: ReactNode; variant?: "primary" | "gold" }) {
-  return (
-    <button
-      type="submit"
-      disabled={status === "submitting"}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto ${
-        variant === "gold"
-          ? "bg-gold text-gold-foreground hover:brightness-105"
-          : "bg-primary text-primary-foreground hover:bg-primary/90"
-      }`}
-    >
-      {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
-      {children}
-    </button>
-  );
-}
-
-function LeadForm() {
+function ContactSection() {
   const { status, errorMessage, submitFields } = useSubmitForm("callback");
   const [fields, setFields] = useState({ name: "", phone: "", email: "", message: "" });
 
@@ -425,326 +208,121 @@ function LeadForm() {
   }
 
   return (
-    <section id="lead-form" className="bg-background py-24">
-      <div className="mx-auto max-w-3xl px-6">
+    <section id="contact" className="bg-background py-24">
+      <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">נשמח לעזור</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
+            נשמח לעזור
+          </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
-            השאירו פרטים ונחזור אליכם
+            מוכנים לעשות סדר בעולם הפיננסי שלכם?
           </h2>
           <p className="mt-3 text-base text-muted-foreground">
-            מלאו את הטופס ונציג מטעמנו יחזור אליכם בהקדם לשיחת ייעוץ ללא עלות.
+            השאירו פרטים ונחזור אליכם, או פנו ישירות לאיש הקשר המתאים — ללא עלות וללא התחייבות.
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="mt-10 grid gap-5 rounded-2xl border border-border bg-card p-8 shadow-sm sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="lead-name">שם מלא</Label>
-            <Input
-              id="lead-name"
-              required
-              value={fields.name}
-              onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
-              placeholder="שם מלא"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="lead-phone">טלפון</Label>
-            <Input
-              id="lead-phone"
-              type="tel"
-              required
-              value={fields.phone}
-              onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
-              placeholder="050-0000000"
-            />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="lead-email">אימייל</Label>
-            <Input
-              id="lead-email"
-              type="email"
-              value={fields.email}
-              onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))}
-              placeholder="name@example.com"
-            />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="lead-message">הודעה</Label>
-            <Textarea
-              id="lead-message"
-              rows={4}
-              value={fields.message}
-              onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
-              placeholder="איך נוכל לעזור?"
-            />
-          </div>
-          <div className="space-y-3 sm:col-span-2">
-            <SubmitButton status={status}>שליחה</SubmitButton>
-            <FormStatusMessage
-              status={status}
-              errorMessage={errorMessage}
-              successMessage="הפרטים נשלחו בהצלחה! נחזור אליכם בהקדם."
-            />
-          </div>
-        </form>
-      </div>
-    </section>
-  );
-}
-
-function ClientPortal() {
-  const { status, errorMessage, submitFields, fail } = useSubmitForm("portal");
-  const [fields, setFields] = useState({ name: "", idNumber: "", phone: "", topic: "" });
-  const [file, setFile] = useState<File | null>(null);
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!fields.topic) {
-      fail("נא לבחור נושא פנייה.");
-      return;
-    }
-    const ok = await submitFields(fields, file);
-    if (ok) {
-      setFields({ name: "", idNumber: "", phone: "", topic: "" });
-      setFile(null);
-    }
-  }
-
-  return (
-    <section id="client-portal" className="bg-secondary py-24">
-      <div className="mx-auto max-w-3xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">שירות למבוטחים</span>
-          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
-            אזור מבוטחים — פנייה לשירות
-          </h2>
-          <p className="mt-3 text-base text-muted-foreground">
-            כבר לקוחות שלנו? שלחו לנו פנייה מסודרת ונטפל בה בהקדם האפשרי.
-          </p>
-        </div>
-        <form onSubmit={handleSubmit} className="mt-10 grid gap-5 rounded-2xl border border-border bg-card p-8 shadow-sm sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="portal-name">שם מלא</Label>
-            <Input
-              id="portal-name"
-              required
-              value={fields.name}
-              onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="portal-id" className="flex items-center gap-1.5">
-              <IdCard className="h-3.5 w-3.5" /> תעודת זהות
-            </Label>
-            <Input
-              id="portal-id"
-              required
-              inputMode="numeric"
-              value={fields.idNumber}
-              onChange={(e) => setFields((f) => ({ ...f, idNumber: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="portal-phone">טלפון</Label>
-            <Input
-              id="portal-phone"
-              type="tel"
-              required
-              value={fields.phone}
-              onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>נושא הפנייה</Label>
-            <Select value={fields.topic} onValueChange={(v) => setFields((f) => ({ ...f, topic: v }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="בחרו נושא" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="health">בריאות</SelectItem>
-                <SelectItem value="life">חיים</SelectItem>
-                <SelectItem value="pension">פנסיה</SelectItem>
-                <SelectItem value="mortgage">משכנתא</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="portal-file" className="flex items-center gap-1.5">
-              <UploadCloud className="h-3.5 w-3.5" /> העלאת מסמך או תמונה (אופציונלי)
-            </Label>
-            <Input
-              id="portal-file"
-              type="file"
-              accept="image/*,.pdf,.doc,.docx"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-          </div>
-          <div className="space-y-3 sm:col-span-2">
-            <SubmitButton status={status}>שליחת הפנייה</SubmitButton>
-            <FormStatusMessage
-              status={status}
-              errorMessage={errorMessage}
-              successMessage="הפנייה נשלחה בהצלחה! ניצור איתכם קשר בהקדם."
-            />
-          </div>
-        </form>
-      </div>
-    </section>
-  );
-}
-
-function MortgageDocs() {
-  const { status, errorMessage, submitFields, fail } = useSubmitForm("mortgage");
-  const [fields, setFields] = useState({ name: "", phone: "" });
-  const [file, setFile] = useState<File | null>(null);
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!file) {
-      fail("נא לצרף את דוח היתרות לסילוק.");
-      return;
-    }
-    const ok = await submitFields(fields, file);
-    if (ok) {
-      setFields({ name: "", phone: "" });
-      setFile(null);
-    }
-  }
-
-  return (
-    <section id="mortgage-docs" className="bg-background py-24">
-      <div className="mx-auto max-w-3xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">בדיקת מיחזור משכנתא</span>
-          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
-            בודקים עבורכם כדאיות מיחזור משכנתא
-          </h2>
-          <p className="mt-3 text-base text-muted-foreground">
-            לקוחות משכנתא קיימים — העלו את דוח היתרות שלכם ונבדוק בחינם אם מגיע לכם מסלול משתלם יותר.
-          </p>
-        </div>
-        <div className="mt-10 rounded-2xl border border-border bg-card p-8 shadow-sm">
-          <div className="rounded-xl bg-secondary/60 p-6">
-            <h3 className="flex items-center gap-2 font-display text-base font-bold text-primary">
-              <FileSpreadsheet className="h-5 w-5 text-gold" />
-              איך מפיקים דוח יתרות לסילוק?
-            </h3>
-            <ol className="mt-3 list-decimal space-y-1.5 pr-5 text-sm leading-relaxed text-foreground/80">
-              <li>היכנסו לאתר או לאפליקציה של הבנק שבו לקוחה המשכנתא שלכם.</li>
-              <li>אתרו את אזור "המשכנתאות שלי" או "ניהול הלוואות".</li>
-              <li>בחרו באפשרות "דוח יתרות לסילוק" והפיקו אותו לתאריך הנוכחי.</li>
-              <li>שמרו את הקובץ (PDF) והעלו אותו כאן — ונבדוק עבורכם את כדאיות המיחזור, ללא עלות וללא התחייבות.</li>
-            </ol>
-            <a
-              href="/mortgage-guide.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 flex items-center justify-center gap-2.5 rounded-xl bg-gold px-6 py-4 text-center font-semibold text-gold-foreground shadow-sm transition hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md"
-            >
-              <FileText className="h-5 w-5" />
-              לחצו כאן לצפייה במדריך המלא להפקת הדוח (שלב אחר שלב)
-            </a>
-          </div>
-          <form onSubmit={handleSubmit} className="mt-8 grid gap-5 sm:grid-cols-2">
+        <div className="mt-14 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
+          <form
+            onSubmit={handleSubmit}
+            className="grid gap-5 rounded-2xl border border-border bg-card p-8 shadow-lg sm:grid-cols-2 md:p-10"
+          >
             <div className="space-y-1.5">
-              <Label htmlFor="mortgage-name">שם מלא</Label>
+              <Label htmlFor="lead-name">שם מלא</Label>
               <Input
-                id="mortgage-name"
+                id="lead-name"
                 required
                 value={fields.name}
                 onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
+                placeholder="שם מלא"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="mortgage-phone">טלפון</Label>
+              <Label htmlFor="lead-phone">טלפון</Label>
               <Input
-                id="mortgage-phone"
+                id="lead-phone"
                 type="tel"
                 required
                 value={fields.phone}
                 onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+                placeholder="050-0000000"
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="mortgage-file" className="flex items-center gap-1.5">
-                <UploadCloud className="h-3.5 w-3.5" /> העלה את דוח היתרות שלך כאן
-              </Label>
+              <Label htmlFor="lead-email">אימייל</Label>
               <Input
-                id="mortgage-file"
-                type="file"
-                accept=".pdf,image/*"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                id="lead-email"
+                type="email"
+                value={fields.email}
+                onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))}
+                placeholder="name@example.com"
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="lead-message">הודעה</Label>
+              <Textarea
+                id="lead-message"
+                rows={4}
+                value={fields.message}
+                onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
+                placeholder="איך נוכל לעזור?"
               />
             </div>
             <div className="space-y-3 sm:col-span-2">
-              <SubmitButton status={status} variant="gold">שליחת הדוח לבדיקה</SubmitButton>
+              <SubmitButton status={status}>שליחה</SubmitButton>
               <FormStatusMessage
                 status={status}
                 errorMessage={errorMessage}
-                successMessage="הדוח נשלח בהצלחה! ניצור איתכם קשר עם תוצאות הבדיקה."
+                successMessage="הפרטים נשלחו בהצלחה! נחזור אליכם בהקדם."
               />
             </div>
           </form>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function CTA() {
-  return (
-    <section id="contact" className="bg-background py-24">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-primary px-8 py-16 text-primary-foreground shadow-2xl md:px-16">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
-          <div className="relative grid gap-10 md:grid-cols-[1.3fr_1fr] md:items-center">
-            <div>
-              <h2 className="font-display text-3xl font-bold md:text-4xl">
-                מוכנים לעשות סדר בעולם הפיננסי שלכם?
-              </h2>
-              <p className="mt-4 text-lg text-primary-foreground/85">
-                השאירו פרטים או חייגו עכשיו — נחזור אליכם תוך שעה לפגישת ייעוץ ראשונית
-                ללא עלות וללא התחייבות.
+          <div className="relative overflow-hidden rounded-2xl bg-primary p-8 text-primary-foreground shadow-2xl md:p-10">
+            <div className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-gold/20 blur-3xl" />
+            <div className="relative">
+              <h3 className="font-display text-xl font-bold">יצירת קשר ישירה</h3>
+              <p className="mt-2 text-sm text-primary-foreground/75">
+                מעדיפים לדבר עכשיו? פנו ישירות לאיש הצוות המתאים.
               </p>
-            </div>
-            <div className="space-y-3">
-              <a
-                href="https://wa.me/972544289164"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-xl bg-[#25D366] px-5 py-3.5 font-semibold text-white transition hover:brightness-105"
-              >
-                <WhatsAppIcon className="h-5 w-5" />
-                אשר ברוכי: 054-428-9164
-              </a>
-              <a
-                href="https://wa.me/972543913343"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-xl bg-gold px-5 py-3.5 font-semibold text-gold-foreground transition hover:brightness-105"
-              >
-                <WhatsAppIcon className="h-5 w-5" />
-                יהונתן ברוכי: 054-391-3343
-              </a>
-              <a
-                href="https://wa.me/972542008230"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-xl border border-white/25 px-5 py-3.5 font-medium transition hover:bg-white/10"
-              >
-                <WhatsAppIcon className="h-5 w-5" />
-                אורן טל סממה: 054-200-8230
-              </a>
-              <a
-                href="mailto:officeasher@shaham-orlan.co.il"
-                className="flex items-center gap-3 rounded-xl border border-white/25 px-5 py-3.5 font-medium transition hover:bg-white/10"
-              >
-                <Mail className="h-5 w-5" />
-                מייל משרד: officeasher@shaham-orlan.co.il
-              </a>
-              <div className="flex items-center gap-3 px-5 text-sm text-primary-foreground/75">
-                <MapPin className="h-5 w-5 text-gold" />
-                היצירה 3, פתח תקווה
+              <div className="mt-6 space-y-3">
+                <a
+                  href="https://wa.me/972544289164"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-xl bg-[#25D366] px-5 py-3.5 font-semibold text-white transition hover:brightness-105"
+                >
+                  <WhatsAppIcon className="h-5 w-5" />
+                  אשר ברוכי: 054-428-9164
+                </a>
+                <a
+                  href="https://wa.me/972543913343"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-xl bg-gold px-5 py-3.5 font-semibold text-gold-foreground transition hover:brightness-105"
+                >
+                  <WhatsAppIcon className="h-5 w-5" />
+                  יהונתן ברוכי: 054-391-3343
+                </a>
+                <a
+                  href="https://wa.me/972542008230"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-xl border border-white/25 px-5 py-3.5 font-medium transition hover:bg-white/10"
+                >
+                  <WhatsAppIcon className="h-5 w-5" />
+                  אורן טל סממה: 054-200-8230
+                </a>
+                <a
+                  href="mailto:officeasher@shaham-orlan.co.il"
+                  className="flex items-center gap-3 rounded-xl border border-white/25 px-5 py-3.5 font-medium transition hover:bg-white/10"
+                >
+                  <Mail className="h-5 w-5" />
+                  מייל משרד: officeasher@shaham-orlan.co.il
+                </a>
+                <div className="flex items-center gap-3 px-5 text-sm text-primary-foreground/75">
+                  <MapPin className="h-5 w-5 text-gold" />
+                  היצירה 3, פתח תקווה
+                </div>
               </div>
             </div>
           </div>
@@ -754,36 +332,48 @@ function CTA() {
   );
 }
 
-function Footer() {
-  return FooterImpl();
-}
-
-function MissionHidden() {} // placeholder removed
-
 function Mission() {
   const pillars = [
-    { icon: Compass, title: "אופטימיזציה של תיק הביטוח", desc: "מיפוי מקיף של כל הפוליסות, החסכונות וההתחייבויות — וייעול התיק לכדי כיסוי מיטבי וחכם." },
-    { icon: Wallet, title: "מניעת תשלומי כפל וכפילויות מיותרות", desc: "בדיקה מעמיקה שמונעת כפילויות ביטוח וכפלי תשלום — כדי שתשלמו רק על מה שבאמת צריך." },
-    { icon: Swords, title: "התייצבות חסרת פשרות מול חברות הביטוח", desc: "עומדים על שלכם מול חברות הביטוח בנחישות ובמקצועיות — כדי להבטיח שתקבלו כל שקל שמגיע לכם." },
+    {
+      icon: Compass,
+      title: "אופטימיזציה של תיק הביטוח",
+      desc: "מיפוי מקיף של כל הפוליסות, החסכונות וההתחייבויות — וייעול התיק לכדי כיסוי מיטבי וחכם.",
+    },
+    {
+      icon: Wallet,
+      title: "מניעת תשלומי כפל וכפילויות מיותרות",
+      desc: "בדיקה מעמיקה שמונעת כפילויות ביטוח וכפלי תשלום — כדי שתשלמו רק על מה שבאמת צריך.",
+    },
+    {
+      icon: Swords,
+      title: "התייצבות חסרת פשרות מול חברות הביטוח",
+      desc: "עומדים על שלכם מול חברות הביטוח בנחישות ובמקצועיות — כדי להבטיח שתקבלו כל שקל שמגיע לכם.",
+    },
   ];
   return (
     <section id="mission" className="relative overflow-hidden bg-background py-24">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">השליחות שלנו</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
+            השליחות שלנו
+          </span>
           <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-primary md:text-5xl">
             מצוינות פיננסית — <span className="text-gold">לטובת הלקוח</span>
           </h2>
           <p className="mt-6 text-lg leading-[1.85] text-muted-foreground">
             המחויבות שלנו פשוטה: אופטימיזציה של תיק הביטוח, מניעת תשלומי כפל וכפילויות מיותרות,
-            והתייצבות חסרת פשרות מול חברות הביטוח — כדי שתקבלו את כל מה שמגיע לכם, בלי לבזבז כסף מיותר.
+            והתייצבות חסרת פשרות מול חברות הביטוח — כדי שתקבלו את כל מה שמגיע לכם, בלי לבזבז כסף
+            מיותר.
           </p>
         </div>
         <div className="mt-16 grid gap-6 md:grid-cols-3">
           {pillars.map((p) => (
-            <div key={p.title} className="relative rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-              <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 text-gold ring-1 ring-gold/30">
+            <div
+              key={p.title}
+              className="relative rounded-2xl border border-border bg-card p-8 text-center shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/25 to-gold/5 text-gold ring-1 ring-gold/30">
                 <p.icon className="h-7 w-7" />
               </div>
               <h3 className="mt-5 font-display text-xl font-bold text-primary">{p.title}</h3>
@@ -797,19 +387,62 @@ function Mission() {
 }
 
 function Services() {
+  const navigate = useNavigate();
   const [activeMember, setActiveMember] = useState<TeamMember | null>(null);
   const services = [
-    { icon: HeartPulse, title: "סיכונים", desc: "ביטוחי חיים, בריאות, ביטוח משכנתא, אובדן כושר עבודה ונכות.", items: ["ביטוח חיים", "ביטוח בריאות", "ביטוח משכנתא", "אובדן כושר עבודה"], team: "asher" },
-    { icon: PiggyBank, title: "פנסיוני", desc: "בניית עתיד פנסיוני יציב — קרנות פנסיה, ביטוחי מנהלים וקופות גמל.", items: ["קרנות פנסיה", "ביטוחי מנהלים", "קופות גמל", "תכנון פרישה"], team: "asher" },
-    { icon: LineChart, title: "פיננסים", desc: "פתרונות חיסכון והשקעה לטווח קצר וארוך, בהתאמה אישית מלאה.", items: ["גמל להשקעה", "קרנות השתלמות", "השקעות", "ניהול נזילות"], team: "yonatan" },
-    { icon: Car, title: "אלמנטרי", desc: "ביטוחי רכב, דירה, מבנה ותכולה — הגנה מלאה על כל מה שיקר לכם.", items: ["ביטוח רכב", "ביטוח דירה", "ביטוח מבנה", "ביטוח עסק"], team: "yonatan" },
-    { icon: Landmark, title: "משכנתאות", desc: "ייעוץ משכנתאות אסטרטגי — מרכישת דירה ועד מיחזור ואיחוד הלוואות.", items: ["רכישת דירה", "מיחזור משכנתא", "משכנתא הפוכה", "איחוד הלוואות"], team: "oren" },
+    {
+      icon: HeartPulse,
+      title: "סיכונים",
+      desc: "ביטוחי חיים, בריאות, ביטוח משכנתא, אובדן כושר עבודה ונכות.",
+      items: ["ביטוח חיים", "ביטוח בריאות", "ביטוח משכנתא", "אובדן כושר עבודה"],
+      team: "asher" as const,
+    },
+    {
+      icon: PiggyBank,
+      title: "פנסיוני",
+      desc: "בניית עתיד פנסיוני יציב — קרנות פנסיה, ביטוחי מנהלים וקופות גמל.",
+      items: ["קרנות פנסיה", "ביטוחי מנהלים", "קופות גמל", "תכנון פרישה"],
+      team: "asher" as const,
+    },
+    {
+      icon: LineChart,
+      title: "פיננסים",
+      desc: "פתרונות חיסכון והשקעה לטווח קצר וארוך, בהתאמה אישית מלאה.",
+      items: ["גמל להשקעה", "קרנות השתלמות", "השקעות", "ניהול נזילות"],
+      team: "yonatan" as const,
+    },
+    {
+      icon: Car,
+      title: "אלמנטרי",
+      desc: "ביטוחי רכב, דירה, מבנה ותכולה — הגנה מלאה על כל מה שיקר לכם.",
+      items: ["ביטוח רכב", "ביטוח דירה", "ביטוח מבנה", "ביטוח עסק"],
+      team: "yonatan" as const,
+    },
+    {
+      icon: Landmark,
+      title: "משכנתאות",
+      desc: "ייעוץ משכנתאות אסטרטגי — מרכישת דירה ועד מיחזור ואיחוד הלוואות.",
+      items: ["רכישת דירה", "מיחזור משכנתא", "משכנתא הפוכה", "איחוד הלוואות"],
+      team: "oren" as const,
+      href: "/mortgage",
+    },
   ];
+
+  function openService(s: (typeof services)[number]) {
+    if (s.href) {
+      navigate({ to: s.href });
+      return;
+    }
+    setActiveMember(TEAM_MEMBERS.find((m) => m.slug === s.team) ?? null);
+  }
+
   return (
     <section id="services" className="bg-secondary py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">השירותים שלנו</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
+            השירותים שלנו
+          </span>
           <h2 className="mt-3 font-display text-4xl font-bold text-primary md:text-5xl">
             פתרון שלם לכל עולמות הפיננסים
           </h2>
@@ -819,7 +452,19 @@ function Services() {
         </div>
         <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
-            <article key={s.title} className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-sm transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-xl">
+            <article
+              key={s.title}
+              role="button"
+              tabIndex={0}
+              onClick={() => openService(s)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openService(s);
+                }
+              }}
+              className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-md transition hover:-translate-y-1 hover:border-gold/50 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-gold/0 via-gold to-gold/0 opacity-0 transition group-hover:opacity-100" />
               <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition group-hover:bg-gold group-hover:text-gold-foreground">
                 <s.icon className="h-7 w-7" />
@@ -834,14 +479,10 @@ function Services() {
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
-                onClick={() => setActiveMember(TEAM_MEMBERS.find((m) => m.slug === s.team) ?? null)}
-                className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition hover:text-gold"
-              >
-                לפרטים נוספים
+              <span className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition group-hover:text-gold">
+                {s.href ? "מעבר לעמוד המשכנתאות" : "לפרטים נוספים"}
                 <ArrowLeft className="h-4 w-4" />
-              </button>
+              </span>
             </article>
           ))}
         </div>
@@ -880,6 +521,130 @@ function Services() {
           )}
         </DialogContent>
       </Dialog>
+    </section>
+  );
+}
+
+function ClientPortal() {
+  const { status, errorMessage, submitFields } = useSubmitForm("portal");
+  const [fields, setFields] = useState({
+    name: "",
+    idNumber: "",
+    phone: "",
+    topic: "",
+    message: "",
+  });
+  const [file, setFile] = useState<File | null>(null);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const ok = await submitFields(fields, file);
+    if (ok) {
+      setFields({ name: "", idNumber: "", phone: "", topic: "", message: "" });
+      setFile(null);
+    }
+  }
+
+  return (
+    <section id="client-portal" className="bg-background py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
+            שירות למבוטחים
+          </span>
+          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
+            אזור מבוטחים — פנייה לשירות
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            כבר לקוחות שלנו? שלחו לנו פנייה מסודרת ונטפל בה בהקדם האפשרי.
+          </p>
+        </div>
+        <form
+          onSubmit={handleSubmit}
+          className="mt-10 grid gap-5 rounded-2xl border border-border bg-card p-8 shadow-lg sm:grid-cols-2 md:p-10"
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-name">שם מלא</Label>
+            <Input
+              id="portal-name"
+              required
+              value={fields.name}
+              onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-id" className="flex items-center gap-1.5">
+              <IdCard className="h-3.5 w-3.5" /> תעודת זהות
+            </Label>
+            <Input
+              id="portal-id"
+              required
+              inputMode="numeric"
+              value={fields.idNumber}
+              onChange={(e) => setFields((f) => ({ ...f, idNumber: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-phone">טלפון</Label>
+            <Input
+              id="portal-phone"
+              type="tel"
+              required
+              value={fields.phone}
+              onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-topic">נושא הפנייה</Label>
+            <Input
+              id="portal-topic"
+              required
+              placeholder="לדוגמה: ביטוח בריאות, פנסיה, קופות גמל..."
+              value={fields.topic}
+              onChange={(e) => setFields((f) => ({ ...f, topic: e.target.value }))}
+            />
+          </div>
+
+          <div className="rounded-xl border border-border bg-secondary/50 p-5 sm:col-span-2">
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+              <MessageSquareText className="h-4 w-4 text-gold" />
+              פירוט הפנייה ו/או אפשרות להעלאת קובץ
+            </p>
+            <div className="mt-4 space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="portal-message">פירוט הפנייה / הודעה</Label>
+                <Textarea
+                  id="portal-message"
+                  rows={4}
+                  placeholder="ספרו לנו בקצרה במה תרצו שנעזור..."
+                  value={fields.message}
+                  onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="portal-file" className="flex items-center gap-1.5">
+                  <UploadCloud className="h-3.5 w-3.5" /> העלאת מסמך או תמונה (אופציונלי)
+                </Label>
+                <Input
+                  id="portal-file"
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 sm:col-span-2">
+            <SubmitButton status={status}>שליחת הפנייה</SubmitButton>
+            <FormStatusMessage
+              status={status}
+              errorMessage={errorMessage}
+              successMessage="הפנייה נשלחה בהצלחה! ניצור איתכם קשר בהקדם."
+            />
+          </div>
+        </form>
+      </div>
     </section>
   );
 }
@@ -957,7 +722,9 @@ function Team() {
     <section id="team" className="relative overflow-hidden bg-secondary py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest text-gold">האנשים שלנו</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
+            האנשים שלנו
+          </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
             פאנל המומחים שעומד לצידכם
           </h2>
@@ -970,7 +737,7 @@ function Team() {
             <article
               key={m.name}
               id={`team-${m.slug}`}
-              className="group flex scroll-mt-24 flex-col items-center rounded-2xl border border-border bg-card px-8 py-10 shadow-sm transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-xl target:-translate-y-1 target:border-gold/60 target:shadow-xl target:ring-2 target:ring-gold/40"
+              className="group flex scroll-mt-24 flex-col items-center rounded-2xl border border-border bg-card px-8 py-10 shadow-md transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-2xl target:-translate-y-1 target:border-gold/60 target:shadow-2xl target:ring-2 target:ring-gold/40"
             >
               <div className="relative shrink-0">
                 <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-gold/50 to-gold/0 opacity-0 transition group-hover:opacity-100" />
@@ -984,83 +751,17 @@ function Team() {
                 <h3 className="font-display text-xl font-bold leading-tight text-primary">
                   {m.name}
                 </h3>
-                <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-gold">{m.title}</p>
+                <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-gold">
+                  {m.title}
+                </p>
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground">{m.desc}</p>
               </div>
               <TeamContactActions m={m} />
-              <div className="mt-3 text-sm font-medium text-muted-foreground">
-                {m.phone}
-              </div>
+              <div className="mt-3 text-sm font-medium text-muted-foreground">{m.phone}</div>
             </article>
           ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function FooterImpl() {
-  return (
-    <footer id="contact-footer" className="border-t border-border bg-secondary py-12">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="grid gap-10 md:grid-cols-3">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <img
-                src={logoImage}
-                alt="ברוכי סוכנות לביטוח"
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-lg object-cover ring-1 ring-border"
-              />
-              <div className="flex flex-col leading-tight">
-                <span className="font-display text-sm font-bold tracking-tight text-primary">ברוכי</span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">סוכנות לביטוח</span>
-              </div>
-            </div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              סוכנות משפחתית מאז 1991. מלווים אלפי משפחות בעולם הביטוח, הפנסיה והמשכנתאות עם מחויבות אישית ללא פשרות.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="font-display text-sm font-bold text-primary">צרו קשר</h4>
-            <div className="space-y-2.5 text-sm">
-              <a href="https://wa.me/972544289164" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
-                <WhatsAppIcon className="h-4 w-4" />
-                אשר ברוכי: 054-428-9164
-              </a>
-              <a href="https://wa.me/972543913343" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
-                <WhatsAppIcon className="h-4 w-4" />
-                יהונתן ברוכי: 054-391-3343
-              </a>
-              <a href="https://wa.me/972542008230" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
-                <WhatsAppIcon className="h-4 w-4" />
-                אורן טל סממה: 054-200-8230
-              </a>
-              <a href="mailto:officeasher@shaham-orlan.co.il" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-primary">
-                <Mail className="h-4 w-4" />
-                מייל משרד: officeasher@shaham-orlan.co.il
-              </a>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="font-display text-sm font-bold text-primary">כתובת המשרד</h4>
-            <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              <span>היצירה 3, פתח תקווה</span>
-            </div>
-            <p className="pt-2 text-xs text-muted-foreground/70">
-              מורשי רישוי משרד האוצר • שירות אישי. מקצועי. משפחתי.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground/60">
-          <p>© {new Date().getFullYear()} ברוכי סוכנות לביטוח. כל הזכויות שמורות.</p>
-        </div>
-      </div>
-    </footer>
   );
 }
