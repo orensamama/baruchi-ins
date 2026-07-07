@@ -21,6 +21,10 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Environment secrets
+.env
+.env.local
+
 # Lovable internal workspace (contains private auth token)
 .workspace/
 

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { submitContactForm } from "@/lib/submit-form";
 import logoImage from "@/assets/baruchi-logo.jpg";
 import asherImg from "@/assets/asher.png";
 import yonatanImg from "@/assets/yonatan.png";
@@ -10,6 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ShieldCheck,
   Home,
@@ -30,6 +42,12 @@ import {
   Swords,
   Sparkles,
   ArrowLeft,
+  UploadCloud,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  IdCard,
+  FileSpreadsheet,
 } from "lucide-react";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -74,6 +92,9 @@ function Index() {
         <Mission />
         <Services />
         <WhyUs />
+        <ClientPortal />
+        <MortgageDocs />
+        <LeadForm />
         <CTA />
       </main>
       <Footer />
@@ -105,6 +126,7 @@ function Header() {
         <nav className="hidden items-center gap-10 text-sm font-medium text-foreground/75 lg:flex">
           <a href="#expertise" className="transition hover:text-primary">תחומי התמחות</a>
           <a href="#why-us" className="transition hover:text-primary">למה אנחנו</a>
+          <a href="#client-portal" className="transition hover:text-primary">אזור מבוטחים</a>
           <a href="#contact" className="transition hover:text-primary">צור קשר</a>
         </nav>
         <a
@@ -165,7 +187,7 @@ function Hero() {
 
           <dl className="mx-auto grid max-w-xl grid-cols-3 gap-6 border-t border-white/10 pt-8">
             {[
-              { k: "25+", v: "שנות ניסיון" },
+              { k: "35+", v: "שנות ניסיון" },
               { k: "5,000+", v: "לקוחות מרוצים" },
               { k: "100%", v: "יחס אישי" },
             ].map((s) => (
@@ -257,7 +279,7 @@ function WhyUs() {
     {
       icon: Award,
       title: "מקצועיות ללא פשרות",
-      desc: "צוות מומחים בעל הסמכות מלאות ומעל 25 שנות ניסיון בשוק הישראלי.",
+      desc: "צוות מומחים בעל הסמכות מלאות ומעל 35 שנות ניסיון בשוק הישראלי.",
     },
     {
       icon: Users,
@@ -311,6 +333,354 @@ function WhyUs() {
   );
 }
 
+type FormStatus = "idle" | "submitting" | "success" | "error";
+
+function useSubmitForm(formType: string) {
+  const submit = useServerFn(submitContactForm);
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function submitFields(fields: Record<string, string>, file?: File | null) {
+    setStatus("submitting");
+    setErrorMessage("");
+    try {
+      const fd = new FormData();
+      fd.append("formType", formType);
+      for (const [key, value] of Object.entries(fields)) {
+        if (value) fd.append(key, value);
+      }
+      if (file) fd.append("file", file);
+      await submit({ data: fd });
+      setStatus("success");
+      return true;
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "משהו השתבש. נסו שוב או צרו קשר טלפוני.");
+      return false;
+    }
+  }
+
+  function fail(message: string) {
+    setStatus("error");
+    setErrorMessage(message);
+  }
+
+  return { status, errorMessage, submitFields, fail };
+}
+
+function FormStatusMessage({
+  status,
+  errorMessage,
+  successMessage,
+}: {
+  status: FormStatus;
+  errorMessage: string;
+  successMessage: string;
+}) {
+  if (status === "success") {
+    return (
+      <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+        <CheckCircle2 className="h-5 w-5 shrink-0" />
+        {successMessage}
+      </div>
+    );
+  }
+  if (status === "error") {
+    return (
+      <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <AlertCircle className="h-5 w-5 shrink-0" />
+        {errorMessage}
+      </div>
+    );
+  }
+  return null;
+}
+
+function SubmitButton({ status, children, variant = "primary" }: { status: FormStatus; children: ReactNode; variant?: "primary" | "gold" }) {
+  return (
+    <button
+      type="submit"
+      disabled={status === "submitting"}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto ${
+        variant === "gold"
+          ? "bg-gold text-gold-foreground hover:brightness-105"
+          : "bg-primary text-primary-foreground hover:bg-primary/90"
+      }`}
+    >
+      {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
+      {children}
+    </button>
+  );
+}
+
+function LeadForm() {
+  const { status, errorMessage, submitFields } = useSubmitForm("callback");
+  const [fields, setFields] = useState({ name: "", phone: "", email: "", message: "" });
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const ok = await submitFields(fields);
+    if (ok) setFields({ name: "", phone: "", email: "", message: "" });
+  }
+
+  return (
+    <section id="lead-form" className="bg-background py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">נשמח לעזור</span>
+          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
+            השאירו פרטים ונחזור אליכם
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            מלאו את הטופס ונציג מטעמנו יחזור אליכם בהקדם לשיחת ייעוץ ללא עלות.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-10 grid gap-5 rounded-2xl border border-border bg-card p-8 shadow-sm sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-name">שם מלא</Label>
+            <Input
+              id="lead-name"
+              required
+              value={fields.name}
+              onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
+              placeholder="שם מלא"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-phone">טלפון</Label>
+            <Input
+              id="lead-phone"
+              type="tel"
+              required
+              value={fields.phone}
+              onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+              placeholder="050-0000000"
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="lead-email">אימייל</Label>
+            <Input
+              id="lead-email"
+              type="email"
+              value={fields.email}
+              onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))}
+              placeholder="name@example.com"
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="lead-message">הודעה</Label>
+            <Textarea
+              id="lead-message"
+              rows={4}
+              value={fields.message}
+              onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
+              placeholder="איך נוכל לעזור?"
+            />
+          </div>
+          <div className="space-y-3 sm:col-span-2">
+            <SubmitButton status={status}>שליחה</SubmitButton>
+            <FormStatusMessage
+              status={status}
+              errorMessage={errorMessage}
+              successMessage="הפרטים נשלחו בהצלחה! נחזור אליכם בהקדם."
+            />
+          </div>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function ClientPortal() {
+  const { status, errorMessage, submitFields, fail } = useSubmitForm("portal");
+  const [fields, setFields] = useState({ name: "", idNumber: "", phone: "", topic: "" });
+  const [file, setFile] = useState<File | null>(null);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!fields.topic) {
+      fail("נא לבחור נושא פנייה.");
+      return;
+    }
+    const ok = await submitFields(fields, file);
+    if (ok) {
+      setFields({ name: "", idNumber: "", phone: "", topic: "" });
+      setFile(null);
+    }
+  }
+
+  return (
+    <section id="client-portal" className="bg-secondary py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">שירות למבוטחים</span>
+          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
+            אזור מבוטחים — פנייה לשירות
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            כבר לקוחות שלנו? שלחו לנו פנייה מסודרת ונטפל בה בהקדם האפשרי.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-10 grid gap-5 rounded-2xl border border-border bg-card p-8 shadow-sm sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-name">שם מלא</Label>
+            <Input
+              id="portal-name"
+              required
+              value={fields.name}
+              onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-id" className="flex items-center gap-1.5">
+              <IdCard className="h-3.5 w-3.5" /> תעודת זהות
+            </Label>
+            <Input
+              id="portal-id"
+              required
+              inputMode="numeric"
+              value={fields.idNumber}
+              onChange={(e) => setFields((f) => ({ ...f, idNumber: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="portal-phone">טלפון</Label>
+            <Input
+              id="portal-phone"
+              type="tel"
+              required
+              value={fields.phone}
+              onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>נושא הפנייה</Label>
+            <Select value={fields.topic} onValueChange={(v) => setFields((f) => ({ ...f, topic: v }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="בחרו נושא" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="health">בריאות</SelectItem>
+                <SelectItem value="life">חיים</SelectItem>
+                <SelectItem value="pension">פנסיה</SelectItem>
+                <SelectItem value="mortgage">משכנתא</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="portal-file" className="flex items-center gap-1.5">
+              <UploadCloud className="h-3.5 w-3.5" /> העלאת מסמך או תמונה (אופציונלי)
+            </Label>
+            <Input
+              id="portal-file"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+          <div className="space-y-3 sm:col-span-2">
+            <SubmitButton status={status}>שליחת הפנייה</SubmitButton>
+            <FormStatusMessage
+              status={status}
+              errorMessage={errorMessage}
+              successMessage="הפנייה נשלחה בהצלחה! ניצור איתכם קשר בהקדם."
+            />
+          </div>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function MortgageDocs() {
+  const { status, errorMessage, submitFields, fail } = useSubmitForm("mortgage");
+  const [fields, setFields] = useState({ name: "", phone: "" });
+  const [file, setFile] = useState<File | null>(null);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!file) {
+      fail("נא לצרף את דוח היתרות לסילוק.");
+      return;
+    }
+    const ok = await submitFields(fields, file);
+    if (ok) {
+      setFields({ name: "", phone: "" });
+      setFile(null);
+    }
+  }
+
+  return (
+    <section id="mortgage-docs" className="bg-background py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">בדיקת מיחזור משכנתא</span>
+          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
+            בודקים עבורכם כדאיות מיחזור משכנתא
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            לקוחות משכנתא קיימים — העלו את דוח היתרות שלכם ונבדוק בחינם אם מגיע לכם מסלול משתלם יותר.
+          </p>
+        </div>
+        <div className="mt-10 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="rounded-xl bg-secondary/60 p-6">
+            <h3 className="flex items-center gap-2 font-display text-base font-bold text-primary">
+              <FileSpreadsheet className="h-5 w-5 text-gold" />
+              איך מפיקים דוח יתרות לסילוק?
+            </h3>
+            <ol className="mt-3 list-decimal space-y-1.5 pr-5 text-sm leading-relaxed text-foreground/80">
+              <li>היכנסו לאתר או לאפליקציה של הבנק שבו לקוחה המשכנתא שלכם.</li>
+              <li>אתרו את אזור "המשכנתאות שלי" או "ניהול הלוואות".</li>
+              <li>בחרו באפשרות "דוח יתרות לסילוק" והפיקו אותו לתאריך הנוכחי.</li>
+              <li>שמרו את הקובץ (PDF) והעלו אותו כאן — ונבדוק עבורכם את כדאיות המיחזור, ללא עלות וללא התחייבות.</li>
+            </ol>
+          </div>
+          <form onSubmit={handleSubmit} className="mt-8 grid gap-5 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="mortgage-name">שם מלא</Label>
+              <Input
+                id="mortgage-name"
+                required
+                value={fields.name}
+                onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="mortgage-phone">טלפון</Label>
+              <Input
+                id="mortgage-phone"
+                type="tel"
+                required
+                value={fields.phone}
+                onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="mortgage-file" className="flex items-center gap-1.5">
+                <UploadCloud className="h-3.5 w-3.5" /> העלה את דוח היתרות שלך כאן
+              </Label>
+              <Input
+                id="mortgage-file"
+                type="file"
+                accept=".pdf,image/*"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
+            </div>
+            <div className="space-y-3 sm:col-span-2">
+              <SubmitButton status={status} variant="gold">שליחת הדוח לבדיקה</SubmitButton>
+              <FormStatusMessage
+                status={status}
+                errorMessage={errorMessage}
+                successMessage="הדוח נשלח בהצלחה! ניצור איתכם קשר עם תוצאות הבדיקה."
+              />
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CTA() {
   return (
     <section id="contact" className="bg-background py-24">
@@ -338,18 +708,22 @@ function CTA() {
                 אשר ברוכי: 054-428-9164
               </a>
               <a
-                href="tel:039206652"
+                href="https://wa.me/972543913343"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 rounded-xl bg-gold px-5 py-3.5 font-semibold text-gold-foreground transition hover:brightness-105"
               >
-                <Phone className="h-5 w-5" />
-                טלפון משרד: 03-9206652
+                <WhatsAppIcon className="h-5 w-5" />
+                יהונתן ברוכי: 054-391-3343
               </a>
               <a
-                href="tel:039206610"
+                href="https://wa.me/972542008230"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 rounded-xl border border-white/25 px-5 py-3.5 font-medium transition hover:bg-white/10"
               >
-                <Phone className="h-5 w-5" />
-                טלפון משרד אלמנטרי: 03-9206610
+                <WhatsAppIcon className="h-5 w-5" />
+                אורן טל סממה: 054-200-8230
               </a>
               <a
                 href="mailto:officeasher@shaham-orlan.co.il"
@@ -642,17 +1016,17 @@ function FooterImpl() {
           <div className="space-y-4">
             <h4 className="font-display text-sm font-bold text-primary">צרו קשר</h4>
             <div className="space-y-2.5 text-sm">
-              <a href="https://wa.me/972549111656" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
+              <a href="https://wa.me/972544289164" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
                 <WhatsAppIcon className="h-4 w-4" />
-                וואטסאפ משרד: 054-911-1656
+                אשר ברוכי: 054-428-9164
               </a>
-              <a href="tel:039206652" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-primary">
-                <Phone className="h-4 w-4" />
-                טלפון משרד: 03-9206652
+              <a href="https://wa.me/972543913343" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
+                <WhatsAppIcon className="h-4 w-4" />
+                יהונתן ברוכי: 054-391-3343
               </a>
-              <a href="tel:039206610" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-primary">
-                <Phone className="h-4 w-4" />
-                טלפון משרד אלמנטרי: 03-9206610
+              <a href="https://wa.me/972542008230" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-[#25D366]">
+                <WhatsAppIcon className="h-4 w-4" />
+                אורן טל סממה: 054-200-8230
               </a>
               <a href="mailto:officeasher@shaham-orlan.co.il" className="flex items-center gap-2.5 text-muted-foreground transition hover:text-primary">
                 <Mail className="h-4 w-4" />
