@@ -48,6 +48,7 @@ import {
   Loader2,
   IdCard,
   FileSpreadsheet,
+  FileText,
 } from "lucide-react";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -634,6 +635,15 @@ function MortgageDocs() {
               <li>בחרו באפשרות "דוח יתרות לסילוק" והפיקו אותו לתאריך הנוכחי.</li>
               <li>שמרו את הקובץ (PDF) והעלו אותו כאן — ונבדוק עבורכם את כדאיות המיחזור, ללא עלות וללא התחייבות.</li>
             </ol>
+            <a
+              href="/mortgage-guide.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 flex items-center justify-center gap-2.5 rounded-xl bg-gold px-6 py-4 text-center font-semibold text-gold-foreground shadow-sm transition hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md"
+            >
+              <FileText className="h-5 w-5" />
+              לחצו כאן לצפייה במדריך המלא להפקת הדוח (שלב אחר שלב)
+            </a>
           </div>
           <form onSubmit={handleSubmit} className="mt-8 grid gap-5 sm:grid-cols-2">
             <div className="space-y-1.5">
