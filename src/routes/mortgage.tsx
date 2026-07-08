@@ -22,6 +22,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+type DocLink = { text: string; href: string };
+
 type DocGuideGroup = {
   heading?: string;
   steps: string[];
@@ -33,6 +35,8 @@ type DocGuide = {
   content: string;
   groups: DocGuideGroup[];
   note?: string;
+  /** Exact phrases within this guide's step text that should render as clickable links. */
+  links?: DocLink[];
   link?: { href: string; label: string };
 };
 
@@ -44,7 +48,7 @@ const DOCUMENT_GUIDES: DocGuide[] = [
     groups: [
       {
         steps: [
-          `היכנסו לאתר הרשמי של מערכת נתוני אשראי של בנק ישראל: https://www.creditdata.org.il/`,
+          `היכנסו לאתר הרשמי של מערכת נתוני אשראי של בנק ישראל.`,
           `לחצו על כפתור "התחברות לקבלת מידע" בראש העמוד.`,
           `המערכת תעביר אתכם אוטומטית למערכת ההזדהות הלאומית הממשלתית (gov.il) - הזדהו עם הפרטים האישיים שלכם.`,
           `לאחר הכניסה, בחרו באפשרות "הפקת דו"ח ריכוז נתוני אשראי" והורידו את הקובץ המלא כ-PDF.`,
@@ -52,6 +56,12 @@ const DOCUMENT_GUIDES: DocGuide[] = [
       },
     ],
     note: `הערה: השירות ניתן בחינם לגמרי פעם אחת בשנה קלנדרית. (לחילופין בנייד, ניתן להוריד ולהפיק גם דרך אפליקציית 'קפטן קרדיט').`,
+    links: [
+      {
+        text: "אתר הרשמי של מערכת נתוני אשראי של בנק ישראל",
+        href: "https://www.creditdata.org.il/",
+      },
+    ],
     link: { href: "https://www.creditdata.org.il/", label: "מעבר לאתר נתוני אשראי" },
   },
   {
@@ -68,6 +78,13 @@ const DOCUMENT_GUIDES: DocGuide[] = [
           `קובץ ה-PDF הרשמי יישלח מיד ישירות לתיבת המייל שלכם.`,
         ],
       },
+    ],
+    links: [
+      {
+        text: "אתר השירותים הרשמי של משרד המשפטים",
+        href: "https://www.gov.il/he/service/land_registration_extract",
+      },
+      { text: "באתר משרד המשפטים", href: "https://www.gov.il/he/service/locate-block-parcel" },
     ],
   },
   {
@@ -91,33 +108,51 @@ const DOCUMENT_GUIDES: DocGuide[] = [
         ],
       },
     ],
+    links: [
+      { text: "פורטל השירותים של רשות מקרקעי ישראל", href: "https://services.land.gov.il/Mytaba/" },
+    ],
   },
 ];
 
-const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
+const URL_PATTERN = /https?:\/\/[^\s]+/;
 
-/** Renders step text as plain text, auto-linking any raw URL so it opens cleanly in a new tab. */
-function LinkifiedText({ text }: { text: string }): ReactNode {
-  const parts = text.split(URL_PATTERN);
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Renders step text as plain text, turning known phrases (per-document `links`) into
+ * clickable anchors to their exact official URL, and — as a fallback — auto-linking any
+ * raw URL that appears in the text. All links open in a new tab.
+ */
+function StepText({ text, links = [] }: { text: string; links?: DocLink[] }): ReactNode {
+  const phrasePattern =
+    links.length > 0
+      ? new RegExp(
+          `(${links.map((l) => escapeRegExp(l.text)).join("|")}|${URL_PATTERN.source})`,
+          "g",
+        )
+      : new RegExp(`(${URL_PATTERN.source})`, "g");
+  const parts = text.split(phrasePattern);
+
   return (
     <>
-      {parts.map((part, i) =>
-        // text.split() with a capturing group alternates [text, match, text, match, ...],
-        // so odd indices are always the captured URLs — safer than re-testing a stateful /g regex.
-        i % 2 === 1 ? (
+      {parts.map((part, i) => {
+        const matchedLink = links.find((l) => l.text === part);
+        const href = matchedLink?.href ?? (URL_PATTERN.test(part) ? part : null);
+        if (!href) return <span key={i}>{part}</span>;
+        return (
           <a
             key={i}
-            href={part}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-primary underline decoration-gold decoration-2 underline-offset-2 transition hover:text-gold"
           >
             {part}
           </a>
-        ) : (
-          <span key={i}>{part}</span>
-        ),
-      )}
+        );
+      })}
     </>
   );
 }
@@ -170,7 +205,7 @@ function DocumentGuideStation() {
                       <ol className="list-decimal space-y-2 pr-5 text-sm leading-relaxed text-foreground/85 marker:font-semibold marker:text-gold">
                         {group.steps.map((step, si) => (
                           <li key={si}>
-                            <LinkifiedText text={step} />
+                            <StepText text={step} links={doc.links} />
                           </li>
                         ))}
                       </ol>
