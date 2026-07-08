@@ -1,11 +1,208 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, FileSpreadsheet, FileText, UploadCloud } from "lucide-react";
+import {
+  ArrowRight,
+  CreditCard,
+  ExternalLink,
+  FileSpreadsheet,
+  FileText,
+  ScrollText,
+  Stamp,
+  UploadCloud,
+} from "lucide-react";
 import { SiteHeader, FloatingActions } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useSubmitForm, FormStatusMessage, SubmitButton } from "@/components/form-helpers";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+type DocGuideGroup = {
+  heading?: string;
+  steps: string[];
+};
+
+type DocGuide = {
+  icon: typeof CreditCard;
+  title: string;
+  content: string;
+  groups: DocGuideGroup[];
+  note?: string;
+  link?: { href: string; label: string };
+};
+
+const DOCUMENT_GUIDES: DocGuide[] = [
+  {
+    icon: CreditCard,
+    title: `דו"ח ריכוז נתוני אשראי (בנק ישראל)`,
+    content: `הדו"ח הרשמי המציג את היסטוריית האשראי, ההלוואות והצ'קים שלכם ב-3 השנים האחרונות. הוא מסמך חובה לכל תיק משכנתא.`,
+    groups: [
+      {
+        steps: [
+          `היכנסו לאתר הרשמי של מערכת נתוני אשראי של בנק ישראל: https://www.creditdata.org.il/`,
+          `לחצו על כפתור "התחברות לקבלת מידע" בראש העמוד.`,
+          `המערכת תעביר אתכם אוטומטית למערכת ההזדהות הלאומית הממשלתית (gov.il) - הזדהו עם הפרטים האישיים שלכם.`,
+          `לאחר הכניסה, בחרו באפשרות "הפקת דו"ח ריכוז נתוני אשראי" והורידו את הקובץ המלא כ-PDF.`,
+        ],
+      },
+    ],
+    note: `הערה: השירות ניתן בחינם לגמרי פעם אחת בשנה קלנדרית. (לחילופין בנייד, ניתן להוריד ולהפיק גם דרך אפליקציית 'קפטן קרדיט').`,
+    link: { href: "https://www.creditdata.org.il/", label: "מעבר לאתר נתוני אשראי" },
+  },
+  {
+    icon: ScrollText,
+    title: `נוסח טאבו מעודכן (נסח רישום מקרקעין)`,
+    content: `תעודת הזהות של הנכס המוכיחה מי הבעלים האמיתיים של הדירה והאם קיימים עליה עיקולים, שעבודים או הערות אזהרה.`,
+    groups: [
+      {
+        steps: [
+          `ודאו שיש בידיכם את מספרי הגוש, החלקה והתת-חלקה של הדירה (אם אינכם יודעים, ניתן לאתרם חינם לפי כתובת באתר משרד המשפטים).`,
+          `היכנסו לאתר השירותים הרשמי של משרד המשפטים (אגף רישום והסדר מקרקעין).`,
+          `בחרו בסוג הנסח הדרוש (לרוב 'נסח מרוכז' לבניין משותף או 'נסח מלא').`,
+          `מזינים את נתוני הגוש והחלקה, ומשלמים אגרה ממשלתית אונליין (כ-17 ש"ח).`,
+          `קובץ ה-PDF הרשמי יישלח מיד ישירות לתיבת המייל שלכם.`,
+        ],
+      },
+    ],
+  },
+  {
+    icon: Stamp,
+    title: `אישור זכויות (רמ"י או חברה משכנת)`,
+    content: `מסמך המחליף את נסח הטאבו במקרים בהם הדירה או הקרקע עדיין אינן רשומות בטאבו הרשמי, אלא מנוהלות על ידי רשות מקרקעי ישראל או החברה הקבלנית שבנתה את הפרויקט.`,
+    groups: [
+      {
+        heading: `במידה והנכס מנוהל ברשות מקרקעי ישראל (רמ"י):`,
+        steps: [
+          `היכנסו לפורטל השירותים של רשות מקרקעי ישראל.`,
+          `בצעו כניסה באמצעות מערכת ההזדהות הלאומית.`,
+          `המערכת תזהה את הנכס הרשום על שמכם. הגישו בקשה דיגיטלית להפקת "אישור זכויות". המסמך יופק חינם תוך מספר דקות.`,
+        ],
+      },
+      {
+        heading: `במידה והנכס מנוהל בחברה משכנת (חברה קבלנית כמו עמידר, שיכון ובינוי וכו׳):`,
+        steps: [
+          `יש לפנות ישירות לשירות הלקוחות או לאתר החברה המשכנת הספציפית.`,
+          `הגישו בקשה ל'אישור זכויות לצורך משכנתא'. ההפקה עשויה לעלות אגרה קבועה בחוק (כ-80-90 ש"ח) ולהימשך מספר ימים.`,
+        ],
+      },
+    ],
+  },
+];
+
+const URL_PATTERN = /(https?:\/\/[^\s]+)/g;
+
+/** Renders step text as plain text, auto-linking any raw URL so it opens cleanly in a new tab. */
+function LinkifiedText({ text }: { text: string }): ReactNode {
+  const parts = text.split(URL_PATTERN);
+  return (
+    <>
+      {parts.map((part, i) =>
+        // text.split() with a capturing group alternates [text, match, text, match, ...],
+        // so odd indices are always the captured URLs — safer than re-testing a stateful /g regex.
+        i % 2 === 1 ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary underline decoration-gold decoration-2 underline-offset-2 transition hover:text-gold"
+          >
+            {part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+function DocumentGuideStation() {
+  return (
+    <section className="bg-background py-20 md:py-28">
+      <div className="mx-auto max-w-4xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-sm font-semibold uppercase tracking-widest text-gold">
+            תחנת המדריכים
+          </span>
+          <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">
+            מדריך הפקת מסמכים שלב אחר שלב
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            לחצו על שם המסמך כדי לראות מה זה, איך משיגים אותו ולאן פונים — צעד אחר צעד.
+          </p>
+        </div>
+
+        <Accordion type="single" collapsible className="mt-10 space-y-4">
+          {DOCUMENT_GUIDES.map((doc, index) => (
+            <AccordionItem
+              key={doc.title}
+              value={`doc-${index}`}
+              className="overflow-hidden rounded-2xl border border-border bg-card px-6 shadow-md transition hover:shadow-lg md:px-8"
+            >
+              <AccordionTrigger className="py-6 text-right hover:no-underline [&[data-state=open]>svg]:text-gold">
+                <span className="flex items-center gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                    <doc.icon className="h-6 w-6" />
+                  </span>
+                  <span className="font-display text-lg font-bold text-primary md:text-xl">
+                    {doc.title}
+                  </span>
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pb-8">
+                <div className="border-t border-border pt-5 md:pr-16">
+                  <p className="leading-relaxed text-muted-foreground">{doc.content}</p>
+
+                  {doc.groups.map((group, gi) => (
+                    <div key={gi} className={gi > 0 ? "mt-6" : "mt-5"}>
+                      {group.heading && (
+                        <p className="mb-2.5 flex items-center gap-1.5 font-semibold text-primary">
+                          <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                          {group.heading}
+                        </p>
+                      )}
+                      <ol className="list-decimal space-y-2 pr-5 text-sm leading-relaxed text-foreground/85 marker:font-semibold marker:text-gold">
+                        {group.steps.map((step, si) => (
+                          <li key={si}>
+                            <LinkifiedText text={step} />
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  ))}
+
+                  {doc.note && (
+                    <p className="mt-5 rounded-xl bg-secondary/70 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+                      {doc.note}
+                    </p>
+                  )}
+
+                  {doc.link && (
+                    <a
+                      href={doc.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-3 text-sm font-semibold text-gold-foreground shadow-sm transition hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      {doc.link.label}
+                    </a>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+    </section>
+  );
+}
 
 export const Route = createFileRoute("/mortgage")({
   head: () => ({
@@ -149,6 +346,8 @@ function MortgagePage() {
             </div>
           </div>
         </section>
+
+        <DocumentGuideStation />
       </main>
       <SiteFooter />
       <FloatingActions />
