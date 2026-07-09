@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import asherImg from "@/assets/asher.png";
 import yonatanImg from "@/assets/yonatan.png";
 import orenImg from "@/assets/oren.png";
@@ -11,6 +11,7 @@ import { SiteHeader, FloatingActions } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import { useSubmitForm, FormStatusMessage, SubmitButton } from "@/components/form-helpers";
+import { MORTGAGE_SITE_URL } from "@/lib/constants";
 import {
   ShieldCheck,
   Heart,
@@ -28,6 +29,7 @@ import {
   Wallet,
   Swords,
   ArrowLeft,
+  ExternalLink,
   UploadCloud,
   IdCard,
   MessageSquareText,
@@ -387,7 +389,6 @@ function Mission() {
 }
 
 function Services() {
-  const navigate = useNavigate();
   const [activeMember, setActiveMember] = useState<TeamMember | null>(null);
   const services = [
     {
@@ -424,17 +425,9 @@ function Services() {
       desc: "ייעוץ משכנתאות אסטרטגי — מרכישת דירה ועד מיחזור ואיחוד הלוואות.",
       items: ["רכישת דירה", "מיחזור משכנתא", "משכנתא הפוכה", "איחוד הלוואות"],
       team: "oren" as const,
-      href: "/mortgage",
+      href: MORTGAGE_SITE_URL,
     },
   ];
-
-  function openService(s: (typeof services)[number]) {
-    if (s.href) {
-      navigate({ to: s.href });
-      return;
-    }
-    setActiveMember(TEAM_MEMBERS.find((m) => m.slug === s.team) ?? null);
-  }
 
   return (
     <section id="services" className="bg-secondary py-24">
@@ -451,40 +444,68 @@ function Services() {
           </p>
         </div>
         <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((s) => (
-            <article
-              key={s.title}
-              role="button"
-              tabIndex={0}
-              onClick={() => openService(s)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  openService(s);
-                }
-              }}
-              className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-md transition hover:-translate-y-1 hover:border-gold/50 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-            >
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-gold/0 via-gold to-gold/0 opacity-0 transition group-hover:opacity-100" />
-              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition group-hover:bg-gold group-hover:text-gold-foreground">
-                <s.icon className="h-7 w-7" />
-              </div>
-              <h3 className="font-display text-2xl font-bold text-primary">{s.title}</h3>
-              <p className="mt-3 leading-relaxed text-muted-foreground">{s.desc}</p>
-              <ul className="mt-5 space-y-2 text-sm">
-                {s.items.map((it) => (
-                  <li key={it} className="flex items-center gap-2 text-foreground/80">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-                    {it}
-                  </li>
-                ))}
-              </ul>
-              <span className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition group-hover:text-gold">
-                {s.href ? "מעבר לעמוד המשכנתאות" : "לפרטים נוספים"}
-                <ArrowLeft className="h-4 w-4" />
-              </span>
-            </article>
-          ))}
+          {services.map((s) => {
+            const cardClassName =
+              "group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-md transition hover:-translate-y-1 hover:border-gold/50 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold";
+            const cardContent = (
+              <>
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-gold/0 via-gold to-gold/0 opacity-0 transition group-hover:opacity-100" />
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground transition group-hover:bg-gold group-hover:text-gold-foreground">
+                  <s.icon className="h-7 w-7" />
+                </div>
+                <h3 className="font-display text-2xl font-bold text-primary">{s.title}</h3>
+                <p className="mt-3 leading-relaxed text-muted-foreground">{s.desc}</p>
+                <ul className="mt-5 space-y-2 text-sm">
+                  {s.items.map((it) => (
+                    <li key={it} className="flex items-center gap-2 text-foreground/80">
+                      <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                      {it}
+                    </li>
+                  ))}
+                </ul>
+                <span className="mt-7 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-primary transition group-hover:text-gold">
+                  {s.href ? "מעבר לאתר המשכנתאות" : "לפרטים נוספים"}
+                  {s.href ? (
+                    <ExternalLink className="h-4 w-4" />
+                  ) : (
+                    <ArrowLeft className="h-4 w-4" />
+                  )}
+                </span>
+              </>
+            );
+
+            if (s.href) {
+              return (
+                <a
+                  key={s.title}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cardClassName}
+                >
+                  {cardContent}
+                </a>
+              );
+            }
+
+            return (
+              <article
+                key={s.title}
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveMember(TEAM_MEMBERS.find((m) => m.slug === s.team) ?? null)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setActiveMember(TEAM_MEMBERS.find((m) => m.slug === s.team) ?? null);
+                  }
+                }}
+                className={cardClassName}
+              >
+                {cardContent}
+              </article>
+            );
+          })}
         </div>
       </div>
       <Dialog open={!!activeMember} onOpenChange={(open) => !open && setActiveMember(null)}>

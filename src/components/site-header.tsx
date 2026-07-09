@@ -1,5 +1,6 @@
 import { Landmark, Phone, Users } from "lucide-react";
 import logoImage from "@/assets/baruchi-logo.jpg";
+import { MORTGAGE_SITE_URL } from "@/lib/constants";
 
 export function SiteHeader() {
   return (
@@ -32,7 +33,12 @@ export function SiteHeader() {
           <a href="/#client-portal" className="transition hover:text-primary">
             אזור מבוטחים
           </a>
-          <a href="/mortgage" className="transition hover:text-primary">
+          <a
+            href={MORTGAGE_SITE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-primary"
+          >
             מיחזור משכנתא
           </a>
           <a href="/#contact" className="transition hover:text-primary">
@@ -79,7 +85,9 @@ function MobileActionBar() {
         אזור מבוטחים
       </a>
       <a
-        href="/mortgage"
+        href={MORTGAGE_SITE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gold px-4 py-3.5 text-sm font-semibold text-gold-foreground shadow-md transition active:scale-[0.97] active:brightness-95"
       >
         <Landmark className="h-4 w-4" />
