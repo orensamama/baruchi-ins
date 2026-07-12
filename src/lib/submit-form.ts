@@ -119,6 +119,10 @@ export const submitContactForm = createServerFn({ method: "POST" })
       }
     }
 
+    // Save to the office's Supabase leads table first — that's the system of
+    // record. The email below is a notification on top of it, sent second.
+    await saveLeadToSupabase(formType, data);
+
     const apiKey = typeof process !== "undefined" ? process.env.RESEND_API_KEY : undefined;
     if (!apiKey) {
       console.error("RESEND_API_KEY is not configured — form submission was not emailed.");
@@ -153,8 +157,6 @@ export const submitContactForm = createServerFn({ method: "POST" })
       console.error("Resend send error:", error);
       throw new Error("שליחת הטופס נכשלה. אנא נסו שוב או צרו קשר טלפוני.");
     }
-
-    await saveLeadToSupabase(formType, data);
 
     return { success: true };
   });
